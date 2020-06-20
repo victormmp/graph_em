@@ -132,6 +132,13 @@ class GabrielGraph:
         upper_connections = self._connections.T
         return self._connections + upper_connections
 
+    @property
+    def edges(self):
+        point_b, point_a = np.where(self._connections == 1)
+        point_a, point_b = [self._points[i, :] for i in point_a], [self._points[i, :] for i in point_b]
+
+        return list(zip(point_a, point_b))
+
     def is_connection(self, point_a: int, point_b: int) -> bool:
         """
         Indicate if <point_a> and <point_b> are connected in a Gabriel Graph.

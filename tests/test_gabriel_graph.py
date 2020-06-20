@@ -151,6 +151,40 @@ class TestGabrielGraph(unittest.TestCase):
                         expected_symmetric_connections[point_a, point_b], graph.is_connection(point_a, point_b)
                     )
 
+    def test_edges(self):
+        connected_points: List[List] = [
+            [1, 0],
+            [2, 1],
+            [4, 3],
+            [5, 4],
+            [7, 6],
+            [8, 7],
+            [3, 0],
+            [6, 3],
+            [4, 1],
+            [7, 4],
+            [5, 2],
+            [8, 5],
+            [4, 0],
+            [8, 4],
+            [4, 2],
+            [6, 4],
+            [7, 5],
+            [3, 1],
+            [5, 1],
+            [7, 3]
+        ]
+
+        expected_edges = []
+        for point_b, point_a in connected_points:
+            expected_edges.append(np.array([self.points[point_a], self.points[point_b]]))
+
+        graph = GabrielGraph(self.points)
+
+        for edge in graph.edges:
+            e = np.array(edge)
+            self.assertTrue(any([np.allclose(e, expec_edge) for expec_edge in expected_edges]))
+
     def tearDown(self) -> None:
         pass
 

@@ -69,7 +69,7 @@ class SimpleUndirectedGraph:
 
     @property
     def edges(self) -> List[Tuple[Any, Any]]:
-        point_a, point_b = np.where(self._distances > 0)
+        point_b, point_a = np.where(self._distances > 0)
         point_a, point_b = [self._points[i, :] for i in point_a], [self._points[i, :] for i in point_b]
 
         return list(zip(point_a, point_b))

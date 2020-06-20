@@ -61,8 +61,8 @@ class TestSimpleGraph(unittest.TestCase):
 
     def test_edges(self):
         expected_edges = []
-        for point_b in range(self.points.shape[0]):
-            for point_a in range(point_b, self.points.shape[0]):
+        for point_a in range(self.points.shape[0]):
+            for point_b in range(point_a, self.points.shape[0]):
                 if point_a != point_b:
                     expected_edges.append(np.array([self.points[point_a], self.points[point_b]]))
 
