@@ -122,8 +122,8 @@ class GabrielGraph:
         Indicate if <point_a> and <point_b> are connected in a Gabriel Graph.
         Parameters
         ----------
-        point_a: numpy.ndarray
-        point_b: numpy.ndarray
+        point_a: int
+        point_b: int
 
         Returns
         -------

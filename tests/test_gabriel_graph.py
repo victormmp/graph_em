@@ -114,6 +114,43 @@ class TestGabrielGraph(unittest.TestCase):
                 calculated_midpoint = GabrielGraph._midpoint(point_a, point_b)
                 self.assertTrue(np.array_equal(midpoint, calculated_midpoint))
 
+    def test_is_connection(self):
+        graph = GabrielGraph(points=self.points)
+        connected_points: List[List] = [
+            [1, 0],
+            [2, 1],
+            [4, 3],
+            [5, 4],
+            [7, 6],
+            [8, 7],
+            [3, 0],
+            [6, 3],
+            [4, 1],
+            [7, 4],
+            [5, 2],
+            [8, 5],
+            [4, 0],
+            [8, 4],
+            [4, 2],
+            [6, 4],
+            [7, 5],
+            [3, 1],
+            [5, 1],
+            [7, 3]
+        ]
+
+        expected_symmetric_connections: np.ndarray = np.zeros((self.points.shape[0], self.points.shape[0]))
+        for point_a, point_b in connected_points:
+            expected_symmetric_connections[point_a, point_b] = 1
+            expected_symmetric_connections[point_b, point_a] = 1
+
+        for point_a in range(self.points.shape[0]):
+            for point_b in range(self.points.shape[0]):
+                with self.subTest(f"Check connection between point {point_a} and {point_b}"):
+                    self.assertEqual(
+                        expected_symmetric_connections[point_a, point_b], graph.is_connection(point_a, point_b)
+                    )
+
     def tearDown(self) -> None:
         pass
 
