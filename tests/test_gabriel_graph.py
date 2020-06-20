@@ -1,7 +1,7 @@
-from ..graph.gabriel_graph import GabrielGraph
+from graph_em.graph.gabriel_graph import GabrielGraph
 import unittest
 import numpy as np
-from typing import List, Tuple
+from typing import List
 
 
 class TestGabrielGraph(unittest.TestCase):

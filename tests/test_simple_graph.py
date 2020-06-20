@@ -1,7 +1,6 @@
-from ..graph.base import SimpleUndirectedGraph
+from graph_em.graph.base import SimpleUndirectedGraph
 import unittest
 import numpy as np
-from typing import List, Tuple
 
 
 class TestSimpleGraph(unittest.TestCase):
