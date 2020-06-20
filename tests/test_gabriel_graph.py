@@ -49,25 +49,45 @@ class TestGabrielGraph(unittest.TestCase):
             [4, 0],
             [8, 4],
             [4, 2],
-            [6, 4]
+            [6, 4],
+            [7, 5],
+            [3, 1],
+            [5, 1],
+            [7, 3]
         ]
 
         for point_a, point_b in connected_points:
             expected_connections[point_a, point_b] = 1
 
         graph = GabrielGraph(points=self.points)
-        connections = graph.connections
 
-        with self.subTest('Assert triangular matrix'):
+        with self.subTest('Assert triangular matrix of connections private property'):
+            connections = graph._connections
+
             self.assertTrue(
                 np.array_equal(
                     np.zeros((self.points.shape[0], self.points.shape[0])),
                     np.triu(connections)
                 )
             )
-        with self.subTest('Assert correct connections'):
-            self.assertTrue(np.array_equal(expected_connections, graph.connections))
-        
+
+        with self.subTest('Assert symmetric matrix of connections public property'):
+            expected_symmetric_connections: np.ndarray = np.zeros((self.points.shape[0], self.points.shape[0]))
+            for point_a, point_b in connected_points:
+                expected_symmetric_connections[point_a, point_b] = 1
+                expected_symmetric_connections[point_b, point_a] = 1
+
+            connections = graph.connections
+            print(connections)
+            print(expected_symmetric_connections)
+
+            self.assertTrue(
+                np.array_equal(
+                    expected_symmetric_connections,
+                    connections
+                )
+            )
+
     def test_distance(self):
         point_a: np.ndarray = np.array([0, 0, 0])
         point_b: np.ndarray = np.array([2, 2, 2])
