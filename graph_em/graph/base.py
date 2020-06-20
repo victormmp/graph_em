@@ -1,5 +1,6 @@
 import click
 import numpy as np
+from typing import List, Tuple, Any
 
 
 class SimpleUndirectedGraph:
@@ -48,18 +49,30 @@ class SimpleUndirectedGraph:
         -------
         None.
         """
-        total_size = self._points.shape[0] ** 2
+        total_size: int = self._points.shape[0] ** 2
         with click.progressbar(length=total_size, label='Building Graph') as bar:
             for index_b in range(self._points.shape[0]):
                 for index_a in range(index_b, self._points.shape[0]):
+
+                    if index_b == index_a:
+                        bar.update(1)
+                        continue
+
                     distance = self._distance(point_a=self._points[index_a], point_b=self._points[index_b])
                     self._distances[index_a, index_b] = distance
                     bar.update(1)
 
     @property
-    def distances(self):
+    def distances(self) -> np.ndarray:
         upper_distances = self._distances.T
         return self._distances + upper_distances
+
+    @property
+    def edges(self) -> List[Tuple[Any, Any]]:
+        point_a, point_b = np.where(self._distances > 0)
+        point_a, point_b = [self._points[i, :] for i in point_a], [self._points[i, :] for i in point_b]
+
+        return list(zip(point_a, point_b))
 
     @staticmethod
     def _distance(point_a: np.ndarray, point_b: np.ndarray) -> float:
