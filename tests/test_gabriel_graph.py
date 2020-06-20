@@ -78,8 +78,6 @@ class TestGabrielGraph(unittest.TestCase):
                 expected_symmetric_connections[point_b, point_a] = 1
 
             connections = graph.connections
-            print(connections)
-            print(expected_symmetric_connections)
 
             self.assertTrue(
                 np.array_equal(
