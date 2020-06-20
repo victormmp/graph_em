@@ -52,9 +52,14 @@ class SimpleUndirectedGraph:
         with click.progressbar(length=total_size, label='Building Graph') as bar:
             for index_b in range(self._points.shape[0]):
                 for index_a in range(index_b, self._points.shape[0]):
-                    midpoint = self._midpoint(point_a=self._points[index_a], point_b=self._points[index_b])
                     distance = self._distance(point_a=self._points[index_a], point_b=self._points[index_b])
                     self._distances[index_a, index_b] = distance
+                    bar.update(1)
+
+    @property
+    def distances(self):
+        upper_distances = self._distances.T
+        return self._distances + upper_distances
 
     @staticmethod
     def _distance(point_a: np.ndarray, point_b: np.ndarray) -> float:
