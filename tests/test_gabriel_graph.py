@@ -1,12 +1,13 @@
-from ..graph.gabriel_graph import GabrielGraph
+from graph_em.graph.gabriel_graph import GabrielGraph
 import unittest
 import numpy as np
-from typing import List, Tuple
+from typing import List
 
 
 class TestGabrielGraph(unittest.TestCase):
 
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         """
         Sample points:
 
@@ -17,7 +18,7 @@ class TestGabrielGraph(unittest.TestCase):
         6 --- 7 --- 8
 
         """
-        self.points = np.array(
+        cls.points = np.array(
             [
                 [-1,    1],
                 [ 0,    1],
@@ -31,9 +32,7 @@ class TestGabrielGraph(unittest.TestCase):
             ]
         )
 
-    def test_connections(self):
-        expected_connections: np.ndarray = np.zeros((self.points.shape[0], self.points.shape[0]))
-        connected_points: List[List] = [
+        cls.connected_points: List[List] = [
             [1, 0],
             [2, 1],
             [4, 3],
@@ -56,8 +55,17 @@ class TestGabrielGraph(unittest.TestCase):
             [7, 3]
         ]
 
-        for point_a, point_b in connected_points:
-            expected_connections[point_a, point_b] = 1
+        cls.expected_connections: np.ndarray = np.zeros((cls.points.shape[0], cls.points.shape[0]))
+
+        for point_a, point_b in cls.connected_points:
+            cls.expected_connections[point_a, point_b] = 1
+
+        cls.expected_symmetric_connections: np.ndarray = np.zeros((cls.points.shape[0], cls.points.shape[0]))
+        for point_a, point_b in cls.connected_points:
+            cls.expected_symmetric_connections[point_a, point_b] = 1
+            cls.expected_symmetric_connections[point_b, point_a] = 1
+
+    def test_connections(self):
 
         graph = GabrielGraph(points=self.points)
 
@@ -72,16 +80,11 @@ class TestGabrielGraph(unittest.TestCase):
             )
 
         with self.subTest('Assert symmetric matrix of connections public property'):
-            expected_symmetric_connections: np.ndarray = np.zeros((self.points.shape[0], self.points.shape[0]))
-            for point_a, point_b in connected_points:
-                expected_symmetric_connections[point_a, point_b] = 1
-                expected_symmetric_connections[point_b, point_a] = 1
-
             connections = graph.connections
 
             self.assertTrue(
                 np.array_equal(
-                    expected_symmetric_connections,
+                    self.expected_symmetric_connections,
                     connections
                 )
             )
@@ -113,6 +116,28 @@ class TestGabrielGraph(unittest.TestCase):
 
                 calculated_midpoint = GabrielGraph._midpoint(point_a, point_b)
                 self.assertTrue(np.array_equal(midpoint, calculated_midpoint))
+
+    def test_is_connection(self):
+        graph = GabrielGraph(points=self.points)
+
+        for point_a in range(self.points.shape[0]):
+            for point_b in range(self.points.shape[0]):
+                with self.subTest(f"Check connection between point {point_a} and {point_b}"):
+                    self.assertEqual(
+                        self.expected_symmetric_connections[point_a, point_b], graph.is_connection(point_a, point_b)
+                    )
+
+    def test_edges(self):
+
+        expected_edges = []
+        for point_b, point_a in self.connected_points:
+            expected_edges.append(np.array([self.points[point_a], self.points[point_b]]))
+
+        graph = GabrielGraph(self.points)
+
+        for edge in graph.edges:
+            e = np.array(edge)
+            self.assertTrue(any([np.allclose(e, expec_edge) for expec_edge in expected_edges]))
 
     def tearDown(self) -> None:
         pass
