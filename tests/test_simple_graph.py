@@ -5,7 +5,8 @@ import numpy as np
 
 class TestSimpleGraph(unittest.TestCase):
 
-    def setUp(self) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
         """
         Sample points:
 
@@ -16,7 +17,7 @@ class TestSimpleGraph(unittest.TestCase):
         6 --- 7 --- 8
 
         """
-        self.points = np.array(
+        cls.points = np.array(
             [
                 [-1,    1],
                 [ 0,    1],
