@@ -20,6 +20,7 @@ class SampledGraph(SimpleUndirectedGraph):
             number_of_samples = int(fraction * points.shape[0])
 
         self.random_generator = random_generator
+        self.number_of_samples = number_of_samples
         sampled_points = points[self.random_generator.choice(points.shape[0], number_of_samples, replace=False), :]
 
         super(SampledGraph, self).__init__(points=sampled_points)
