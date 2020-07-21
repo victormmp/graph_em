@@ -64,11 +64,25 @@ class SimpleUndirectedGraph:
 
     @property
     def distances(self) -> np.ndarray:
+        """
+        Returns a complete distance matrix.
+        Returns
+        -------
+        np.ndarray:
+            Complete distance matrix
+        """
         upper_distances = self._distances.T
         return self._distances + upper_distances
 
     @property
     def edges(self) -> List[Tuple[Any, Any]]:
+        """
+        Returns a list of edges, in a lazy way, each edge explained as a pair of vectors.
+        Returns
+        -------
+        List[Any, Any]:
+            List of edges.
+        """
         point_b, point_a = np.where(self._distances > 0)
         point_a, point_b = [self._points[i, :] for i in point_a], [self._points[i, :] for i in point_b]
 
