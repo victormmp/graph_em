@@ -9,11 +9,7 @@ class TestGraphSampler(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.rg = np.random.RandomState(seed=42)
 
-        clusters =
-
         cls.rg_initial_state = cls.rg.get_state()
-
-
 
     def setUp(self) -> None:
         self.rg.set_state(self.rg_initial_state)
