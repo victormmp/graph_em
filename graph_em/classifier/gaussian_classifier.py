@@ -10,6 +10,8 @@ from typing import List, Dict, Union, Tuple
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.cluster import KMeans
 
+from graph_em.graph.sampled import SampledGraph
+
 log_format = "[%(asctime)s] [%(levelname)s] [%(funcName)s(%(lineno)d)] - %(message)s"
 datefmt = '%d-%b-%y %H:%M:%S'
 
@@ -143,6 +145,7 @@ class ExpectationMaximization:
                     - single: (Default) Sample random variables, use their position as means and define eye matrix as covariance.
                     - kmeans: Use kmeans initialization.
                     - knn: Use k-nearest neighbors as initialization.
+                    - sampled: Use a sampled graph
 
         Returns:
             None.
@@ -158,56 +161,81 @@ class ExpectationMaximization:
 
         self.labels = np.random.randint(self.n_clusters, size=x.shape[0])
 
-        cluster_stat = []
         means = x[np.random.choice(x.shape[0], self.n_clusters, replace=False), :]
 
         if method == 'single':
-            for cluster in range(self.n_clusters):
-                pi_k = 1 / self.n_clusters
-                mean = means[cluster]
-                sigma = np.eye(x.shape[1])
-                cluster_stat.append(
-                    {
-                        'mean': mean,
-                        'sigma': sigma,
-                        'pi_k': pi_k
-                    }
-                )
+            cluster_stat = self._single_start(means, x)
         elif method == 'kmeans':
-            km = KMeans(n_clusters=self.n_clusters, init=means)
-            km.fit(x)
-            for cluster in range(self.n_clusters):
-                x_c = x[km.labels_ == cluster, :]
-                pi_k = x_c.shape[0] / x.shape[0]
-                mean = np.mean(x_c, axis=0)
-                sigma = np.cov(x_c.T).reshape((x.shape[1], x.shape[1]))
-                cluster_stat.append(
-                    {
-                        'mean': mean,
-                        'sigma': sigma,
-                        'pi_k': pi_k
-                    }
-                )
+            cluster_stat = self._kmeans_start(means, x)
         elif method == 'knn':
-            knn = KNeighborsClassifier(n_neighbors=1)
-            knn.fit(means, [c for c in range(means.shape[0])])
-            labels = knn.predict(x)
-            for cluster in range(self.n_clusters):
-                x_c = x[labels == cluster, :]
-                pi_k = x_c.shape[0] / x.shape[0]
-                mean = np.mean(x_c, axis=0)
-                sigma = np.cov(x_c.T).reshape((x.shape[1], x.shape[1]))
-                cluster_stat.append(
-                    {
-                        'mean': mean,
-                        'sigma': sigma,
-                        'pi_k': pi_k
-                    }
-                )
+            cluster_stat = self._knn_start(means, x)
+        elif method == 'sampled':
+            cluster_stat = self._sampled_start(means, x)
+        else:
+            cluster_stat = []
 
         self.cluster_stat = cluster_stat
 
         return self
+
+    @NotImplemented
+    def _sampled_start(self, means, x):
+
+        cluster_stat = []
+
+        return cluster_stat
+
+    def _knn_start(self, means, x):
+        cluster_stat = []
+        knn = KNeighborsClassifier(n_neighbors=1)
+        knn.fit(means, [c for c in range(means.shape[0])])
+        labels = knn.predict(x)
+        for cluster in range(self.n_clusters):
+            x_c = x[labels == cluster, :]
+            pi_k = x_c.shape[0] / x.shape[0]
+            mean = np.mean(x_c, axis=0)
+            sigma = np.cov(x_c.T).reshape((x.shape[1], x.shape[1]))
+            cluster_stat.append(
+                {
+                    'mean': mean,
+                    'sigma': sigma,
+                    'pi_k': pi_k
+                }
+            )
+        return cluster_stat
+
+    def _kmeans_start(self, means, x):
+        km = KMeans(n_clusters=self.n_clusters, init=means)
+        km.fit(x)
+        cluster_stat = []
+        for cluster in range(self.n_clusters):
+            x_c = x[km.labels_ == cluster, :]
+            pi_k = x_c.shape[0] / x.shape[0]
+            mean = np.mean(x_c, axis=0)
+            sigma = np.cov(x_c.T).reshape((x.shape[1], x.shape[1]))
+            cluster_stat.append(
+                {
+                    'mean': mean,
+                    'sigma': sigma,
+                    'pi_k': pi_k
+                }
+            )
+        return cluster_stat
+
+    def _single_start(self, means, x):
+        cluster_stat = []
+        for cluster in range(self.n_clusters):
+            pi_k = 1 / self.n_clusters
+            mean = means[cluster]
+            sigma = np.eye(x.shape[1])
+            cluster_stat.append(
+                {
+                    'mean': mean,
+                    'sigma': sigma,
+                    'pi_k': pi_k
+                }
+            )
+        return cluster_stat
 
     def _log_likelihood(self, x: np.ndarray) -> np.ndarray:
         """
