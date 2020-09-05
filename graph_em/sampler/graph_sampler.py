@@ -4,6 +4,10 @@ from typing import Union, List
 
 
 class GraphSampler:
+    """
+    This class uses graph and an optimization routine to sample an optimal set of observations based on the maximization
+    of the distances between them, considering all the observations of a given distribution.
+    """
 
     def __init__(
             self,
